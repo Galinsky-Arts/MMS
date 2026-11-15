@@ -6,9 +6,9 @@ import {createDraftSettingsHandler} from './draft-settings.mjs';
  * Production must bind the accepted session verifier and the host's HTTPS proxy.
  * Forwarded host/protocol headers never select the canonical origin.
  */
-export function makeDraftSettingsServer(options){
+export function createDraftSettingsListener(options){
  const handle=createDraftSettingsHandler(options);
- const server=createServer(async(req,res)=>{
+ return async(req,res)=>{
   const fail=status=>{res.writeHead(status,{'content-type':'application/json','cache-control':'no-store','x-content-type-options':'nosniff'});res.end(JSON.stringify({error:'Request rejected'}))};
   const target=req.url||'/';
   if(!target.startsWith('/')||target.startsWith('//')||/[\\\u0000-\u0020\u007f]/.test(target)||
@@ -33,7 +33,10 @@ export function makeDraftSettingsServer(options){
   }catch{
    if(!res.headersSent&&!res.destroyed)fail(503);else res.destroy();
   }
- });
+ };
+}
+export function makeDraftSettingsServer(options){
+ const server=createServer(createDraftSettingsListener(options));
  server.headersTimeout=10000;
  server.requestTimeout=15000;
  server.keepAliveTimeout=5000;

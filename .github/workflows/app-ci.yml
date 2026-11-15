@@ -1,0 +1,44 @@
+name: Application CI
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: mms_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Unit, HTTP and Postgres integration tests
+        run: npm test
+        env:
+          TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/mms_test
+      - name: Production boot smoke test
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/mms_test
+          NODE_ENV: production
+          MMS_PUBLIC_ORIGIN: https://mms.ci.invalid
+          PORT: '3000'
+        run: |
+          export MMS_ADMIN_TOKEN="$(openssl rand -base64 36 | tr '+/' '-_' | tr -d '=')"
+          node src/main.mjs & pid=$!
+          for i in $(seq 1 20); do curl -fsS localhost:3000/health && break; sleep 1; done
+          curl -fsS localhost:3000/health | grep -q '"database":"ok"'
+          curl -fsS localhost:3000/t/demo/archive | grep -q 'Synthetic demonstration data'
+          test "$(curl -s -o /dev/null -w '%{http_code}' localhost:3000/t/mms/organizer)" = 404
+          kill $pid
