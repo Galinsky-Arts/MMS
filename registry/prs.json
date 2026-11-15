@@ -1,5 +1,5 @@
 {
-  "repository": "neophilism/MMS",
+  "repository": "Galinsky-Arts/MMS",
   "title": "MMS",
   "planVerified": true,
   "plannedPrCount": 8,
@@ -14,37 +14,59 @@
       "id": "MMS-01",
       "title": "Application shell",
       "origin": "original",
-      "prs": [],
+      "prs": [
+        15
+      ],
       "dependsOn": [],
       "externalDependencies": [],
-      "externalPrerequisites": []
+      "externalPrerequisites": [
+        "Replace the prototype operator-token stub with the verified Live-Competition-Engine session/SDK contract (upstream repository not accessible to this deployment)"
+      ],
+      "contributingPrs": [
+        6
+      ]
     },
     {
       "id": "MMS-02",
       "title": "Visual identity",
       "origin": "original",
-      "prs": [],
+      "prs": [
+        15
+      ],
       "dependsOn": [],
       "externalDependencies": [],
-      "externalPrerequisites": []
+      "externalPrerequisites": [],
+      "contributingPrs": [
+        7
+      ]
     },
     {
       "id": "MMS-03",
       "title": "MMS terminology",
       "origin": "original",
-      "prs": [],
+      "prs": [
+        15
+      ],
       "dependsOn": [],
       "externalDependencies": [],
-      "externalPrerequisites": []
+      "externalPrerequisites": [],
+      "contributingPrs": [
+        8
+      ]
     },
     {
       "id": "MMS-04",
       "title": "Competition defaults",
       "origin": "original",
-      "prs": [],
+      "prs": [
+        15
+      ],
       "dependsOn": [],
       "externalDependencies": [],
-      "externalPrerequisites": []
+      "externalPrerequisites": [],
+      "contributingPrs": [
+        9
+      ]
     },
     {
       "id": "MMS-05",
@@ -53,16 +75,22 @@
       "prs": [],
       "dependsOn": [],
       "externalDependencies": [],
-      "externalPrerequisites": []
+      "externalPrerequisites": [
+        "Owner approval of docs/MMS-05_PRIVACY_CONSENT_REVIEW_DRAFT.md: legal operator and privacy contact, retention periods, consent version and applicant eligibility; applications stay disabled until approved"
+      ]
     },
     {
       "id": "MMS-06",
       "title": "Industry discovery",
       "origin": "original",
       "prs": [],
-      "dependsOn": [],
+      "dependsOn": [
+        "MMS-05"
+      ],
       "externalDependencies": [],
-      "externalPrerequisites": []
+      "externalPrerequisites": [
+        "Industry verification process and contact-permission policy approved by the owner (depends on MMS-05 consent records)"
+      ]
     },
     {
       "id": "MMS-07",
@@ -71,16 +99,28 @@
       "prs": [],
       "dependsOn": [],
       "externalDependencies": [],
-      "externalPrerequisites": []
+      "externalPrerequisites": [
+        "Upstream publication verifier, media/recording rights and corrected caption sources; only synthetic archive content is deployed"
+      ],
+      "contributingPrs": [
+        15
+      ]
     },
     {
       "id": "MMS-08",
       "title": "Production validation",
       "origin": "original",
       "prs": [],
-      "dependsOn": [],
+      "dependsOn": [
+        "MMS-01",
+        "MMS-05",
+        "MMS-06",
+        "MMS-07"
+      ],
       "externalDependencies": [],
-      "externalPrerequisites": []
+      "externalPrerequisites": [
+        "Real Live-Competition-Engine connection with media/streaming for a scripted realistic event"
+      ]
     }
   ],
   "pullRequests": []

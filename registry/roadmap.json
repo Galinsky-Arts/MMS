@@ -1,5 +1,5 @@
 {
-  "repository": "neophilism/MMS",
+  "repository": "Galinsky-Arts/MMS",
   "deprecated": true,
   "redirectTo": "registry/prs.json",
   "instructions": "Retired duplicate; consume registry/prs.json directly."
