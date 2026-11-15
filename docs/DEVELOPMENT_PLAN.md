@@ -87,3 +87,18 @@ Test both payment-enabled and no-payment modes, mobile/keyboard accessibility, p
 ## Recovery status
 
 The original numbered plan and product constraints are recoverable; external API selections, credential readiness and present-day deployment cannot be certified from a past conversation. Do not infer current availability from this handoff document.
+
+## Current implementation status (2026-11-15)
+
+| Unit | Status | Evidence / blocker |
+| --- | --- | --- |
+| MMS-01 | Implemented (prototype) — upstream session contract pending | PR #15 (from #6). Operator-token stub replaces the inaccessible engine session API. |
+| MMS-02 | Implemented | PR #15 (from #7). Browser/WCAG audit not performed. |
+| MMS-03 | Implemented | PR #15 (from #8). |
+| MMS-04 | Implemented | PR #15 (from #9). Postgres-backed draft settings; optional modes cannot be enabled. |
+| MMS-05 | Pending — owner gate | Owner privacy/consent sign-off required; draft PR #10 kept open, submissions disabled. |
+| MMS-06 | Pending — owner gate | Depends on MMS-05 consent; draft PR #11 kept open. |
+| MMS-07 | Partial — synthetic preview only | Renderer deployed with fictional data via PR #15; real publication (#12) awaits upstream verifier/rights/captions. |
+| MMS-08 | Pending | Requires live engine and the gates above. |
+
+Deployment details: [DEPLOYMENT.md](DEPLOYMENT.md).
