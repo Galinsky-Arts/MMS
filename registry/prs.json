@@ -20,7 +20,7 @@
       "dependsOn": [],
       "externalDependencies": [],
       "externalPrerequisites": [
-        "Replace the prototype operator-token stub with the verified Live-Competition-Engine session/SDK contract (upstream repository not accessible to this deployment)"
+        "Optional: connect an external Live-Competition-Engine through app/engine/adapter.mjs (built-in engine in use)"
       ],
       "contributingPrs": [
         6
@@ -76,7 +76,7 @@
       "dependsOn": [],
       "externalDependencies": [],
       "externalPrerequisites": [
-        "Owner approval of docs/MMS-05_PRIVACY_CONSENT_REVIEW_DRAFT.md: legal operator and privacy contact, retention periods, consent version and applicant eligibility; applications stay disabled until approved"
+        "Owner sign-off of privacy/consent terms; applications are built but stay closed until an admin enters operator, privacy contact, retention days and consent version"
       ]
     },
     {
@@ -88,9 +88,7 @@
         "MMS-05"
       ],
       "externalDependencies": [],
-      "externalPrerequisites": [
-        "Industry verification process and contact-permission policy approved by the owner (depends on MMS-05 consent records)"
-      ]
+      "externalPrerequisites": []
     },
     {
       "id": "MMS-07",
@@ -99,9 +97,7 @@
       "prs": [],
       "dependsOn": [],
       "externalDependencies": [],
-      "externalPrerequisites": [
-        "Upstream publication verifier, media/recording rights and corrected caption sources; only synthetic archive content is deployed"
-      ],
+      "externalPrerequisites": [],
       "contributingPrs": [
         15
       ]
@@ -119,7 +115,7 @@
       ],
       "externalDependencies": [],
       "externalPrerequisites": [
-        "Real Live-Competition-Engine connection with media/streaming for a scripted realistic event"
+        "Live realistic event with real performers/streams and a human accessibility review"
       ]
     }
   ],
