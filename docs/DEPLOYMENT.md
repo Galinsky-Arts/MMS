@@ -1,61 +1,65 @@
-# MMS deployable slice (MMS-01..04 + synthetic MMS-07 preview)
+# MMS deployment and operations
 
-This is the first deployable MVP. It composes the reviewed MMS-01 shell, MMS-02
-visual identity, MMS-03 terminology and MMS-04 competition defaults into one Node
-web service (`npm start` → `src/main.mjs`), with producer draft settings stored in
-Postgres (Neon). Live-Competition-Engine is **not** connected: the upstream
-repository is not accessible to this deployment, so the prototype uses clearly
-labelled stubs, as the development plan permits for prototypes.
+One Node service (`npm start` → `src/main.mjs`) on Postgres (Neon). Migrations run at boot
+(`app/schema.mjs`, recorded in `mms_migrations`, guarded by an advisory lock). Tests: `npm test`
+(set `TEST_DATABASE_URL` for the Postgres integration and scripted-event tests).
 
-## What is live
+## What the app does
 
-| Route | Behaviour |
-| --- | --- |
-| `GET /health` | Liveness + database ping. Always reports `applicationsOpen:false`, `engine:"stub-not-connected"`, `productionReady:false`. Used as the Render health check. |
-| `/`, `/watch`, `/apply`, `/vote`, `/archive`, `/sponsor`, `/experience/*` | MMS-02 static public pages. Apply states that applications are not open; no forms. |
-| `/t/demo/*` | MMS-07 public site renderer fed **only** synthetic, fictional fixtures (`demo/synthetic-archive.mjs`), each page bannered "Synthetic demonstration data". Unpublished fixtures are withheld by the MMS-07 projection. |
-| `GET /t/{MMS_TENANT_ID}/organizer` | Producer draft-settings editor (read-only form; CSP forbids scripts). Requires the operator bearer token. |
-| `GET/PUT /api/t/{MMS_TENANT_ID}/events/{eventId}/draft-settings` | MMS-04 draft settings API with optimistic versions, same-origin PUT, strict JSON, capability gate (battles/ensemble/improv/prompts/votes/payments cannot be enabled without a verified capability — none are verified). |
-| `/organizer`, `/industry`, `/account`, `/t/*/…` | MMS-01 deny-by-default shell; 404 without an authorized session. |
+| Area | Routes | Notes |
+| --- | --- | --- |
+| Public site (MMS-07) | `/`, `/watch`, `/events/{slug}`, `/vote`, `/archive`, `/champions`, `/sponsor`, `/privacy` | Real data from the built-in engine. Live pages show the current performer and a monologue countdown, refresh automatically and embed the stream (YouTube/Vimeo/SoundCloud). Recordings appear only for performers with publication consent; captions only once marked corrected. |
+| Accounts | `/register`, `/login`, `/logout`, `/account` | Email + password (argon2id), server-side sessions (14 days, `__Host-` cookie on HTTPS), CSRF tokens on every form, same-origin check, rate limits (sign-in per IP and per email, registration, votes, applications, contact requests). Roles: admin, producer, judge, entrant, fan, industry. Account deletion erases applications, uploads and requests. |
+| Applications (MMS-05) | `/apply`, `/account/applications/{id}`, `/media/{id}` | Profile, representation, union status, monologue details, reel link (YouTube/Vimeo/SoundCloud) and optional headshot/résumé uploads stored AES-256-GCM-encrypted in Postgres (size cap in settings, default 2 MB, content-sniffed). Separate consents for review (required), industry discovery, contact requests and publication, stamped with the consent version. Withdraw, change consents, or delete at any time. Retention purge runs hourly. |
+| Industry discovery (MMS-06) | `/industry`, `/industry/performers/{id}`, `/industry/saved` | Users request verification; a producer verifies. Verified members search only opted-in profiles, save performers and send contact requests; email is revealed only after the performer approves. Revoking consent bumps a consent generation, which hides the profile, clears saved lists and invalidates earlier requests. |
+| Judging | `/judge`, `/judge/heats/{id}` | Assigned judges score each performer against the event rubric while the heat is live. |
+| Producer console | `/admin/...` | Events (MMS defaults preset), rubric, rounds, heats, entrants, judges, live heat console (timer start/pause/resume/stop, no-show, voting open/close, results with tie rules, finalize, advance), recordings/captions, application review, users/roles, industry verification, sponsors, audit log, settings. |
+| Competition defaults (MMS-04) | `/t/{tenant}/organizer`, `GET/PUT /api/t/{tenant}/events/{event}/draft-settings` | API accepts the legacy operator bearer token or a producer session. |
+| Ops | `/health` | Liveness + DB ping, `applicationsOpen`, `engine`. Render health check. |
 
-## Stub identity (prototype only)
+## Competition engine
 
-`src/auth.mjs` accepts one operator bearer secret (`MMS_ADMIN_TOKEN`) as a
-verified *producer/member* principal for exactly one tenant (`MMS_TENANT_ID`,
-default `mms`). It never grants the *industry* role, so no discovery access exists.
-Replace it with the upstream session contract before any production claim.
+`app/engine/builtin.mjs` is a complete engine on Postgres (events, rounds, heats, entrants, judges,
+weighted rubric scores, heat timers with overtime, audience votes, results, advancement, champions,
+archive). The app talks to it only through the adapter contract in `app/engine/adapter.mjs`
+(`ENGINE_METHODS`). `MMS_ENGINE=external` + `MMS_ENGINE_ORIGIN` selects the external adapter, which
+probes health and fails closed for every operation until a Live-Competition-Engine client implements
+the same methods.
 
-## Owner-gated features (remain disabled)
+Scoring: each judge's score is the weighted rubric percentage (0–100); the judge component is the mean
+across judges. With audience voting on, combined = judges × (1 − w) + vote share × w. Tie rules:
+`manual-review` (default; producer orders tied performers before finalizing), `judges-then-votes`,
+`votes-then-judges`, `top-criterion`, `shared`.
 
-* MMS-05 applications, uploads and applicant data: blocked on owner approval of
-  `docs/MMS-05_PRIVACY_CONSENT_REVIEW_DRAFT.md` (operator identity, privacy
-  contact, retention periods, consent version). No submission route exists.
-* MMS-06 discovery/contact opt-ins: depend on MMS-05 consent records.
-* MMS-07 real publication: requires an upstream publication verifier, media
-  rights and corrected captions. Only synthetic content is rendered.
-* Payments/sponsorship: none implemented; no paywall.
+Voting anti-abuse: signed-in accounts only, minimum account age (default 10 minutes), per-account
+vote limit per heat (event setting), one vote per performer, per-network cap per heat (keyed HMAC
+of the IP, default 25), entrants cannot vote in their own heat, judges cannot vote, per-IP rate limit.
+
+## Switched off by default
+
+* **Applications are CLOSED.** The admin switch (Admin → Settings → Open applications) refuses to turn
+  on until the operator name, privacy contact, retention days and consent version are entered. Editing
+  any privacy term while open closes applications again until re-confirmed. The owner has not yet
+  signed off `docs/MMS-05_PRIVACY_CONSENT_REVIEW_DRAFT.md`, so these values are intentionally empty.
+* Audience voting is off per event until a producer enables it.
+* No payments exist (sponsor page lists sponsors only).
 
 ## Configuration
 
 | Variable | Source | Purpose |
 | --- | --- | --- |
-| `DATABASE_URL` | Neon connection string (Render env) | Draft settings persistence; required when `NODE_ENV=production`. |
-| `MMS_ADMIN_TOKEN` | Generated secret (Render env) | Prototype operator bearer token. Missing/short → private routes fail closed. |
-| `MMS_PUBLIC_ORIGIN` | Optional; defaults to Render's `RENDER_EXTERNAL_URL` | Canonical HTTPS origin for the same-origin API check. Without one the API is disabled. |
-| `MMS_TENANT_ID` | Optional, default `mms` | Operator tenant. |
-| `MMS_ENGINE_ORIGIN` | Owner-supplied when upstream exists | Engine health probe for `/ready` (returns 503 until connected). |
-| `NODE_ENV` | `production` on Render | Enforces `DATABASE_URL`. |
+| `DATABASE_URL` | Neon (Render env) | Required. |
+| `MMS_ADMIN_TOKEN` | Generated (Render env) | Bootstrap admin: sign in with email `admin` and this value as password. Also the legacy bearer token for the draft-settings API. Removing it disables the bootstrap account. |
+| `MMS_SECRET_KEY` | Generated (Render env) | Root secret for CSRF tokens, IP hashing and upload encryption keys. Falls back to `MMS_ADMIN_TOKEN`; rotating it makes existing uploads unreadable. |
+| `MMS_PUBLIC_ORIGIN` | Optional | Canonical https origin; defaults to `RENDER_EXTERNAL_URL`. Enables `__Host-` secure cookies, the origin check and the draft-settings API. |
+| `MMS_TENANT_ID` | Optional (`mms`) | Tenant for the draft-settings API. |
+| `MMS_ENGINE`, `MMS_ENGINE_ORIGIN` | Optional | `builtin` (default) or `external`. |
 
-Example operator call (token from the Render dashboard, never committed):
+## First run
 
-```sh
-curl -H "Authorization: Bearer $MMS_ADMIN_TOKEN" "$ORIGIN/api/t/mms/events/pilot-event/draft-settings"
-```
+1. Sign in at `/login` as `admin` with `MMS_ADMIN_TOKEN`.
+2. Create named staff accounts (they register normally), give them roles under Admin → Users.
+3. Create an event (MMS defaults preset), publish it, assign judges, accept applications or add entrants.
+4. When the owner approves privacy terms, enter them in Admin → Settings and open applications.
 
-## Verification
-
-`npm test` (Node ≥ 22.13) runs unit, real-HTTP and — when `TEST_DATABASE_URL` is
-set — Postgres integration tests (round-trip, tenant isolation, concurrent
-version conflict, corrupt-row rejection). GitHub Actions `Application CI` runs
-them against a Postgres 17 service and boots the production entrypoint.
-These tests are AI-authored/AI-reviewed; no independent human audit is claimed.
+Tests are AI-authored and AI-reviewed; no independent human audit is claimed.

@@ -88,17 +88,17 @@ Test both payment-enabled and no-payment modes, mobile/keyboard accessibility, p
 
 The original numbered plan and product constraints are recoverable; external API selections, credential readiness and present-day deployment cannot be certified from a past conversation. Do not infer current availability from this handoff document.
 
-## Current implementation status (2026-11-15)
+## Current implementation status (2026-11-17)
 
-| Unit | Status | Evidence / blocker |
+| Unit | Status | Evidence / remaining |
 | --- | --- | --- |
-| MMS-01 | Implemented (prototype) — upstream session contract pending | PR #15 (from #6). Operator-token stub replaces the inaccessible engine session API. |
-| MMS-02 | Implemented | PR #15 (from #7). Browser/WCAG audit not performed. |
-| MMS-03 | Implemented | PR #15 (from #8). |
-| MMS-04 | Implemented | PR #15 (from #9). Postgres-backed draft settings; optional modes cannot be enabled. |
-| MMS-05 | Pending — owner gate | Owner privacy/consent sign-off required; draft PR #10 kept open, submissions disabled. |
-| MMS-06 | Pending — owner gate | Depends on MMS-05 consent; draft PR #11 kept open. |
-| MMS-07 | Partial — synthetic preview only | Renderer deployed with fictional data via PR #15; real publication (#12) awaits upstream verifier/rights/captions. |
-| MMS-08 | Pending | Requires live engine and the gates above. |
+| MMS-01 | Implemented | Accounts (argon2id, sessions, roles, CSRF, rate limits) replace the operator-token stub; env token remains the bootstrap admin. Built-in engine behind `app/engine/adapter.mjs`. |
+| MMS-02 | Implemented | Responsive pages, dark mode, keyboard focus styles. No browser/WCAG audit performed. |
+| MMS-03 | Implemented | Terminology module unchanged. |
+| MMS-04 | Implemented | Defaults seed new events (rubric, qualifier/final timing); tie rules and audience vote weight are configurable per event. |
+| MMS-05 | Implemented, closed by default | Applications, uploads (encrypted, capped), media links, consents, private review, notifications, retention purge. Opening requires the owner's privacy decisions entered in Settings. |
+| MMS-06 | Implemented | Industry verification, consented search, saved performers, contact permissions with consent generations. |
+| MMS-07 | Implemented | Watch/vote/archive/champions/sponsor with real data; recordings only with publication consent; captions only when marked corrected. Synthetic demo kept at `/t/demo`. |
+| MMS-08 | Implemented (scripted) | `test/e2e-event.test.mjs` runs the full scripted event (apply → review → judge → vote → results → archive → industry save → opt-out → cross-role negatives) on Postgres in CI. Not done: a live event with real performers/streams, a human accessibility audit, and an upstream Live-Competition-Engine connection. |
 
 Deployment details: [DEPLOYMENT.md](DEPLOYMENT.md).
