@@ -15,7 +15,8 @@
       "title": "Application shell",
       "origin": "original",
       "prs": [
-        15
+        15,
+        16
       ],
       "dependsOn": [],
       "externalDependencies": [],
@@ -31,7 +32,8 @@
       "title": "Visual identity",
       "origin": "original",
       "prs": [
-        15
+        15,
+        16
       ],
       "dependsOn": [],
       "externalDependencies": [],
@@ -45,7 +47,8 @@
       "title": "MMS terminology",
       "origin": "original",
       "prs": [
-        15
+        15,
+        16
       ],
       "dependsOn": [],
       "externalDependencies": [],
@@ -59,7 +62,8 @@
       "title": "Competition defaults",
       "origin": "original",
       "prs": [
-        15
+        15,
+        16
       ],
       "dependsOn": [],
       "externalDependencies": [],
@@ -72,7 +76,9 @@
       "id": "MMS-05",
       "title": "Actor application experience",
       "origin": "original",
-      "prs": [],
+      "prs": [
+        16
+      ],
       "dependsOn": [],
       "externalDependencies": [],
       "externalPrerequisites": [
@@ -83,7 +89,9 @@
       "id": "MMS-06",
       "title": "Industry discovery",
       "origin": "original",
-      "prs": [],
+      "prs": [
+        16
+      ],
       "dependsOn": [
         "MMS-05"
       ],
@@ -94,7 +102,9 @@
       "id": "MMS-07",
       "title": "Public site and archive",
       "origin": "original",
-      "prs": [],
+      "prs": [
+        16
+      ],
       "dependsOn": [],
       "externalDependencies": [],
       "externalPrerequisites": [],
@@ -106,7 +116,9 @@
       "id": "MMS-08",
       "title": "Production validation",
       "origin": "original",
-      "prs": [],
+      "prs": [
+        16
+      ],
       "dependsOn": [
         "MMS-01",
         "MMS-05",
